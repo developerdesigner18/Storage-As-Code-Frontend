@@ -1,0 +1,219 @@
+# Pure Fusion - Storage-as-Code Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         PURE FUSION ARCHITECTURE                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND LAYER                                │
+│                       (React + TypeScript + Vite)                          │
+│                              Port: 5173                                    │
+├───────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                    │
+│  │ Login Page   │  │  Dashboard   │  │ Create Volume│                    │
+│  └──────────────┘  └──────────────┘  └──────────────┘                    │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │              State Management (Zustand)                 │              │
+│  │  • Auth Store  • Volume Store  • Toast Store           │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                   Services Layer                        │              │
+│  │  • API Service  • Auth Service  • Volume Service       │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                                                                            │
+└───────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    │ HTTP/REST + JWT
+                                    ↓
+┌───────────────────────────────────────────────────────────────────────────┐
+│                              BACKEND LAYER                                 │
+│                      (Node.js + Express + TypeScript)                      │
+│                              Port: 3000                                    │
+├───────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                  API Routes Layer                       │              │
+│  │  • /api/auth/*  • /api/volumes/*                       │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                          │                                                 │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                 Middleware Layer                        │              │
+│  │  • Authentication  • Error Handling  • Logging         │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                          │                                                 │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                 Controller Layer                        │              │
+│  │  • Auth Controller  • Volume Controller                │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                          │                                                 │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                  Service Layer                          │              │
+│  │  • Auth Service  • Volume Service                      │              │
+│  │  • Business Logic  • Fusion API Integration            │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                          │                                                 │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                Repository Layer                         │              │
+│  │  • Auth Repository  • Volume Repository                │              │
+│  │  • Data Access Abstraction                             │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                          │                                                 │
+└──────────────────────────┼────────────────────────────────────────────────┘
+                           │
+                           │ Prisma ORM
+                           ↓
+┌───────────────────────────────────────────────────────────────────────────┐
+│                           DATABASE LAYER                                   │
+│                         (SQLite + Prisma)                                  │
+├───────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                    │
+│  │    Users     │  │   Volumes    │  │     Logs     │                    │
+│  │              │  │              │  │              │                    │
+│  │ • id         │  │ • id         │  │ • id         │                    │
+│  │ • email      │  │ • name       │  │ • type       │                    │
+│  │ • password   │  │ • size_gb    │  │ • message    │                    │
+│  │ • created_at │  │ • perf_class │  │ • payload    │                    │
+│  └──────────────┘  │ • status     │  │ • timestamp  │                    │
+│                     │ • placement  │  └──────────────┘                    │
+│                     │ • tags       │                                       │
+│                     │ • created_by │                                       │
+│                     └──────────────┘                                       │
+│                                                                            │
+└───────────────────────────────────────────────────────────────────────────┘
+
+
+                           Backend Service
+                                  │
+                                  │ HTTP REST API
+                                  ↓
+┌───────────────────────────────────────────────────────────────────────────┐
+│                        FUSION MOCK API SERVER                              │
+│                      (Node.js + Express + TypeScript)                      │
+│                              Port: 3001                                    │
+├───────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                  Mock API Endpoints                     │              │
+│  │  • POST   /v1/volumes    (Create)                      │              │
+│  │  • GET    /v1/volumes    (List All)                    │              │
+│  │  • GET    /v1/volumes/:id (Get One)                    │              │
+│  │  • DELETE /v1/volumes/:id (Delete)                     │              │
+│  │  • GET    /v1/health     (Health Check)                │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │              Fusion Mock Service                        │              │
+│  │  • In-Memory Volume Store (Map)                        │              │
+│  │  • Simulates Async Operations (5s delay)               │              │
+│  │  • Error Scenarios (10% failure rate)                  │              │
+│  │  • Status Lifecycle (creating → ready)                 │              │
+│  │  • Validation (400, 409, 500 errors)                   │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                                                                            │
+└───────────────────────────────────────────────────────────────────────────┘
+
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                         CROSS-CUTTING CONCERNS                             │
+├───────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                    Logging System                       │              │
+│  │  • Winston Logger                                       │              │
+│  │  • Request/Response Logging                            │              │
+│  │  • Error Logging                                        │              │
+│  │  • Performance Monitoring                              │              │
+│  │  • Database Logging                                     │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                 Security & Auth                         │              │
+│  │  • JWT Token Generation & Validation                   │              │
+│  │  • Password Hashing (bcrypt)                           │              │
+│  │  • Protected Routes                                     │              │
+│  │  • CORS Configuration                                   │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────┐              │
+│  │                  Validation Layer                       │              │
+│  │  • Zod Schema Validation                               │              │
+│  │  • DTO Pattern                                          │              │
+│  │  • Input Sanitization                                   │              │
+│  └────────────────────────────────────────────────────────┘              │
+│                                                                            │
+└───────────────────────────────────────────────────────────────────────────┘
+
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                            DATA FLOW EXAMPLE                               │
+│                      (Creating a New Volume)                               │
+├───────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  1. User fills form in Frontend (CreateVolumePage)                        │
+│                    ↓                                                       │
+│  2. Form validation (Zod schema)                                          │
+│                    ↓                                                       │
+│  3. POST /api/volumes (with JWT token)                                    │
+│                    ↓                                                       │
+│  4. Backend: Auth Middleware validates JWT                                │
+│                    ↓                                                       │
+│  5. Backend: Volume Controller receives request                           │
+│                    ↓                                                       │
+│  6. Backend: Volume Service validates & processes                         │
+│                    ↓                                                       │
+│  7. Backend: Calls Fusion Mock API (POST /v1/volumes)                     │
+│                    ↓                                                       │
+│  8. Fusion Mock: Creates volume with "creating" status                    │
+│                    ↓                                                       │
+│  9. Fusion Mock: Schedules status update to "ready" (5s)                  │
+│                    ↓                                                       │
+│ 10. Backend: Saves volume to SQLite database                              │
+│                    ↓                                                       │
+│ 11. Backend: Returns volume to Frontend                                   │
+│                    ↓                                                       │
+│ 12. Frontend: Displays success toast                                      │
+│                    ↓                                                       │
+│ 13. Frontend: Starts polling for status updates                           │
+│                    ↓                                                       │
+│ 14. After 5s: Status changes to "ready"                                   │
+│                    ↓                                                       │
+│ 15. Frontend: Shows "Volume ready" notification                           │
+│                                                                            │
+└───────────────────────────────────────────────────────────────────────────┘
+
+
+┌───────────────────────────────────────────────────────────────────────────┐
+│                          TECHNOLOGY STACK                                  │
+├───────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  Frontend:                                                                 │
+│    • React 18                                                              │
+│    • TypeScript                                                            │
+│    • Vite                                                                  │
+│    • Zustand (State Management)                                           │
+│    • Axios (HTTP Client)                                                  │
+│    • React Router                                                          │
+│                                                                            │
+│  Backend:                                                                  │
+│    • Node.js                                                               │
+│    • Express.js                                                            │
+│    • TypeScript                                                            │
+│    • Prisma ORM                                                            │
+│    • SQLite Database                                                       │
+│    • JWT Authentication                                                    │
+│    • Zod Validation                                                        │
+│    • Winston Logger                                                        │
+│    • Swagger/OpenAPI                                                       │
+│                                                                            │
+│  Testing:                                                                  │
+│    • Jest                                                                  │
+│    • Unit Tests                                                            │
+│    • Integration Tests                                                     │
+│                                                                            │
+└───────────────────────────────────────────────────────────────────────────┘
+```

@@ -1,0 +1,103 @@
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-creating {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.status-ready {
+    background: #d1fae5;
+    color: #10b981;
+}
+
+.status-failed {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.status-deleting {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.perf-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.perf-gold {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+}
+
+.perf-silver {
+    background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+    color: white;
+}
+
+.perf-bronze {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    color: white;
+}
+
+.env-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.env-dev {
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
+.env-test {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.env-prod {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.tags-cell {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.tag-mini {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #f3f4f6;
+    color: #6b7280;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.tag-more {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #667eea;
+    color: white;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}

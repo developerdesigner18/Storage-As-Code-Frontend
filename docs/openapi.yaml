@@ -1,0 +1,294 @@
+openapi: 3.0.0
+info:
+  title: Pure Fusion Storage-as-Code API
+  version: 1.0.0
+  description: Self-service portal for managing storage volumes
+  contact:
+    name: Pure Fusion Team
+    email: support@purefusion.com
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    Tag:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+
+    Volume:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        size_gb:
+          type: integer
+          minimum: 10
+          maximum: 5000
+        performance_class:
+          type: string
+          enum: [gold, silver, bronze]
+        protection_policy:
+          type: string
+          enum: [daily, hourly, none]
+        environment:
+          type: string
+          enum: [dev, test, prod]
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        status:
+          type: string
+          enum: [creating, ready, failed, deleting]
+        placement:
+          type: string
+        fusion_volume_id:
+          type: string
+        created_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+paths:
+  /api/auth/login:
+    post:
+      summary: Login user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/register:
+    post:
+      summary: Register new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/volumes:
+    get:
+      summary: Get all volumes
+      tags:
+        - Volumes
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [creating, ready, failed, deleting]
+      responses:
+        '200':
+          description: List of volumes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  volumes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Volume'
+                  total:
+                    type: integer
+
+    post:
+      summary: Create new volume
+      tags:
+        - Volumes
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - size_gb
+                - performance_class
+                - protection_policy
+                - environment
+              properties:
+                name:
+                  type: string
+                size_gb:
+                  type: integer
+                  minimum: 10
+                  maximum: 5000
+                performance_class:
+                  type: string
+                  enum: [gold, silver, bronze]
+                protection_policy:
+                  type: string
+                  enum: [daily, hourly, none]
+                environment:
+                  type: string
+                  enum: [dev, test, prod]
+                tags:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Tag'
+      responses:
+        '201':
+          description: Volume created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Volume'
+        '409':
+          description: Volume name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/volumes/{id}:
+    get:
+      summary: Get volume by ID
+      tags:
+        - Volumes
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Volume details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Volume'
+        '404':
+          description: Volume not found
+
+    delete:
+      summary: Delete volume
+      tags:
+        - Volumes
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Volume deleted successfully
+        '404':
+          description: Volume not found

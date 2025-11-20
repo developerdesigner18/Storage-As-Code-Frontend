@@ -1,0 +1,34 @@
+import React, { SelectHTMLAttributes } from 'react';
+import './Select.css';
+
+interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+    label?: string;
+    error?: string;
+    options: { value: string; label: string }[];
+}
+
+/**
+ * Select Component
+ * Reusable select dropdown with label and error handling
+ */
+export const Select: React.FC<SelectProps> = ({
+    label,
+    error,
+    options,
+    className = '',
+    ...props
+}) => {
+    return (
+        <div className="select-wrapper">
+            {label && <label className="select-label">{label}</label>}
+            <select className={`select ${error ? 'select-error' : ''} ${className}`} {...props}>
+                {options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                        {option.label}
+                    </option>
+                ))}
+            </select>
+            {error && <span className="select-error-text">{error}</span>}
+        </div>
+    );
+};
